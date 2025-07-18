@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import ListaTarea from "../components/ListaTarea";
 
 const Home = () => {
-  const url = "https://playground.4geeks.com/todo/users/alberto%20zambrano";
 
   const [tarea, setTarea] = useState("");
   const [tareas, setTareas] = useState(() => {
@@ -16,7 +15,7 @@ const Home = () => {
   useEffect(() => {
     const obtenerTareas = async () => {
       try {
-        const resp = await fetch(url);
+        const resp = await fetch('https://playground.4geeks.com/todo/users/alberto%20zambrano');
         if (!resp.ok) throw new Error("Error al obtener tareas");
         const data = await resp.json();
 

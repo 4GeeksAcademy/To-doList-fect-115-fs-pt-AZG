@@ -1,89 +1,105 @@
 import React, { useState, useEffect } from "react";
-import ListaTarea from "../components/ListaTarea";
+import ListaTarea from "./ListaTarea";
+
+// const API_BASE = `https://playground.4geeks.com/todo/users/`; //en caso de que  lo quisiera hacer mas escalable y use el url base pasandole solo el usuario como dato adicional//
+// const USER = "alberto"
 
 const Home = () => {
+  const [tarea, setTarea] = useState([]);
+  const [inputValue, setinputValue] = useState([])//info recibida del usuario tarea modificada!//////
 
-  const [tarea, setTarea] = useState("");
-  const [tareas, setTareas] = useState(() => {
-    // Cargar tareas de localStorage como respaldo
-    const tareasGuardadas = localStorage.getItem("tareas");
-    return tareasGuardadas ? JSON.parse(tareasGuardadas) : [];
-  });
-  const [hoveredIndex, setHoveredIndex] = useState(null);
+  //guardo usuario/ post cuerpo no need it porque solo lo guarda/
+  const crearUsuario = async () => {
+    const response = await fetch("https://playground.4geeks.com/todo/users/alberto", {
+      method: "POST",
+    })
+  }
 
-  // Cargar tareas del backend al montar, si falla usar localStorage
+
+  //pedir tarea/get///
+  const getTodos = async () => {
+    const response = await fetch("https://playground.4geeks.com/todo/users/alberto")
+
+    if (!response.ok) {
+      console.log("crea la tarea");
+      crearUsuario();
+
+
+    }
+//data del json puesta en setTarea mas data y todos///
+    const data = await response.json()
+    setTarea(data.todos);   //recibiendo la info//
+    console.log(data.todos); 
+
+
+  }
+  //crear tarea  post! usando toda la esctructura del mismo, en el label le paso el input value osea la tarea modificada//
+  const creainputValue = async () => {
+    const response = await fetch("https://playground.4geeks.com/todo/todos/alberto", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        label: inputValue,
+        is_done: false
+      })
+    }
+
+    )
+
+
+    //llamo al getTodos , tareas anteriores y me da la siguiente tarea vacia lista para la info!
+    const data = await response.json()
+    console.log(data);
+    getTodos()
+    setinputValue("")
+  }
+
+  //  recibo todas las tareas again del getTodos  
   useEffect(() => {
-    const obtenerTareas = async () => {
-      try {
-        const resp = await fetch('https://playground.4geeks.com/todo/users/alberto%20zambrano');
-        if (!resp.ok) throw new Error("Error al obtener tareas");
-        const data = await resp.json();
+    getTodos()
+  }, [])
 
-        // Mapear solo labels y actualizar estado y localStorage
-        const tareasBackend = data.todos.map((t) => t.label);
-        setTareas(tareasBackend);
-        localStorage.setItem("tareas", JSON.stringify(tareasBackend));
-      } catch (error) {
-        console.warn("No se pudo cargar del backend, usando localStorage");
-        // Ya está cargado localStorage en useState inicial!!!!!!!
-      }
-    };
 
-    obtenerTareas();
-  }, []);
 
-  // Función para guardar tareas en backend y localStorage
-  const guardarTareas = async (nuevasTareas) => {
-    setTareas(nuevasTareas);
-    localStorage.setItem("tareas", JSON.stringify(nuevasTareas));
-
-    try {
-      await fetch(url, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(nuevasTareas.map((t) => ({ label: t, done: false }))),
-      });
-    } catch (error) {
-      console.error("Error guardando tareas en backend:", error.message);
-    }
-  };
-
+//cuando escriba tarea me protejo deq lo deje vacio con trimp y llamo a crear la tarea///
   const handleKeyUp = (e) => {
-    if (e.key === "Enter" && tarea.trim() !== "") {
-      const nuevasTareas = [...tareas, tarea.trim()];
-      guardarTareas(nuevasTareas);
-      setTarea("");
+    if (e.key === "Enter" && inputValue.trim() !== "") {
+      creainputValue();
+
     }
   };
 
-  const eliminarTarea = (index) => {
-    const nuevasTareas = tareas.filter((_, i) => i !== index);
-    guardarTareas(nuevasTareas);
-  };
+// elimino tarea  y vuelve a pedir tareas del gettods!!!
+  const eliminarTarea = async (id) => {
+    const responsive = await fetch(`https://playground.4geeks.com/todo/todos/${id}`, {
+      method: "DELETE"
+    })
+    getTodos()
+  }
+
+
 
   return (
-    <div className="container mt-4">
-      <h1 className="text-center mt-4">Lista De Tareas</h1>
-      <label className="form-label" htmlFor="name">
-        <strong>Tareas</strong>
-      </label>
+    <div className="container mt-5" style={{ maxWidth: "600px" }}>
+      <h2 className="text-center mb-4"> 🖇️ Lista de Tareas</h2>
+
       <input
-        className="form-control"
-        id="name"
         type="text"
-        placeholder="Tareas pendientes!"
-        value={tarea}
-        onChange={(e) => setTarea(e.target.value)}
+        className="form-control mb-3"
+        placeholder="Siguiente tarea"
+        value={inputValue}                                 
+        onChange={(e) => setinputValue(e.target.value)}    
         onKeyUp={handleKeyUp}
       />
-      <ListaTarea
-        tareas={tareas}
-        eliminarTarea={eliminarTarea}
-        hoveredIndex={hoveredIndex}
-        setHoveredIndex={setHoveredIndex}
-      />
+
+      {/* //para pasarle info al lista tarea// */}
+
+      <ListaTarea tarea={tarea} eliminarTarea={eliminarTarea} />
     </div>
   );
 };
 
 export default Home;
+

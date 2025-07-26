@@ -1,37 +1,46 @@
 import React from "react";
+//TAREAS almacenadas en tarea y eliminar tarea recibidas aqui//
+const ListaTarea = ({ tarea, eliminarTarea }) => {
+    console.log(tarea);
 
-
-
-
-const ListaTarea = ({ tareas, hoveredIndex, setHoveredIndex, eliminarTarea }) => {
-  return (
-    <ul className="list-group">
-      {tareas.length === 0 ? (
-        <li className="list-group-item text-center text-muted">
-          Añade otra tarea!
-        </li>
-      ) : (
-        tareas.map((item, index) => (
-          <li
-            key={index}
-            className="list-group-item d-flex justify-content-between align-items-center"
-            onMouseEnter={() => setHoveredIndex(index)}
-            onMouseLeave={() => setHoveredIndex(null)}
-          >
-            <span>{item}</span>
-            {hoveredIndex === index && (
-              <button
-                className="btn btn-outline-light btn-sm"
-                onClick={() => eliminarTarea(index)}
-              >
-                ✖️
-              </button>
+    return (
+        <ul className="list-group">
+            {tarea.length === 0 ? (
+                <li className="list-group-item text-center">
+                    .  .  .
+                </li>
+            ) : (
+                tarea.map((todos) => (            //cada tarea de array            
+                    <li
+                        key={todos.id}  //ID unico de la tarea
+                        className="list-group-item d-flex justify-content-between align-items-center"
+                    >
+                        <span>{todos.label}</span>         
+                        <button
+                            className="btn btn-outline-light btn-sm"
+                            onClick={() => eliminarTarea(todos.id)}
+                        >
+                            ✖️
+                        </button>
+                    </li>
+                ))
             )}
-          </li>
-        ))
-      )}
-    </ul>
-  );
+        </ul>
+    );
 };
 
 export default ListaTarea;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
